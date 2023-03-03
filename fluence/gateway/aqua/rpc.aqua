@@ -41,7 +41,7 @@ service Index("index"):
   increment()
   current() -> u32
 
-service ScoreTracker("score"):
+service ScoreTracker("scoreTracker"):
   updateScores(results: []CallResult, mode: string, isQuorumPassed: bool)
   getProvidersByScore() -> []string
 
@@ -120,7 +120,7 @@ func getWorkersWithProviders(uris: []string) -> []WorkerWithProvider:
   <- workersWithProvider
 
 func quorum(
-  uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string,
+  uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string, scoreTrackerServiceId: string, scoreTrackerPeerId: string,
   callFunc: string, string, []string -> JsonString
 ) -> QuorumResult:
   results: *CallResult
@@ -138,18 +138,21 @@ func quorum(
     QuorumChecker quorumServiceId
     -- check all results that we got
     quorumResult <- QuorumChecker.check(results, quorumNumber)
+  on scoreTrackerPeerId via HOST_PEER_ID:
+    ScoreTracker scoreTrackerServiceId
     ScoreTracker.updateScores(results, quorumResult.value, quorumResult.isPassed)
   <- quorumResult
 
-func quorumEth(uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string) -> QuorumResult:
-  <- quorum(uris, quorumNumber, timeout, method, jsonArgs, quorumServiceId, quorumPeerId, call)
+func quorumEth(uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string, scoreTrackerServiceId: string, scoreTrackerPeerId: string ) -> QuorumResult:
+  <- quorum(uris, quorumNumber, timeout, method, jsonArgs, quorumServiceId, quorumPeerId, scoreTrackerServiceId, scoreTrackerPeerId, call)
 
 -- Executes an rpc call priotitizing providers with the highest score and handling failover.
 -- Will first try with the provider with the highest score, if it fails will try with the next one, and so on.
-func optimized(method: string, jsonArgs: []string, callFunc: string, string, []string -> JsonString) -> ?JsonString:
+func optimized(method: string, jsonArgs: []string, scoreTrackerServiceId: string, scoreTrackerPeerId: string, callFunc: string, string, []string -> JsonString) -> ?JsonString:
   return: ?JsonString
 
-  on INIT_PEER_ID via HOST_PEER_ID:
+  on scoreTrackerPeerId via HOST_PEER_ID:
+    ScoreTracker scoreTrackerServiceId
     providers <- ScoreTracker.getProvidersByScore()
 
   on HOST_PEER_ID:
@@ -165,5 +168,5 @@ func optimized(method: string, jsonArgs: []string, callFunc: string, string, []s
           return <<- result
   <- return
 
-func optimizedEth(method: string, jsonArgs: []string) -> ?JsonString:
-  <- optimized(method, jsonArgs, call)
+func optimizedEth(method: string, jsonArgs: []string, scoreTrackerServiceId: string, scoreTrackerPeerId: string) -> ?JsonString:
+  <- optimized(method, jsonArgs, scoreTrackerServiceId, scoreTrackerPeerId, call)

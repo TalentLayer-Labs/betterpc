@@ -43,6 +43,8 @@ let counterPeerId: string;
 let quorumServiceId: string;
 let quorumPeerId: string;
 let quorumNumber: number;
+let scoreTrackerServiceId: string;
+let scoreTrackerPeerId: string;
 let peerId: string;
 
 if (errors.length > 0) {
@@ -84,13 +86,20 @@ async function methodHandler(reqRaw: any, method: string) {
       req,
       quorumServiceId,
       quorumPeerId,
+      scoreTrackerServiceId,
+      scoreTrackerPeerId,
       { ttl: 20000 },
     );
 
     const scores = await getScores();
     console.log("Provider scores: ", scores);
 
-    const res = await optimizedEth(method, req);
+    const res = await optimizedEth(
+      method,
+      req,
+      scoreTrackerServiceId,
+      scoreTrackerPeerId,
+    );
     console.log("Optimized result: " + res?.value);
 
     if (!result.isPassed) {
@@ -101,7 +110,12 @@ async function methodHandler(reqRaw: any, method: string) {
       };
     }
   } else if (config.mode === "optimized") {
-    result = await optimizedEth(method, req);
+    result = await optimizedEth(
+      method,
+      req,
+      scoreTrackerServiceId,
+      scoreTrackerPeerId,
+    );
   }
 
   return JSON.parse(result.value);
@@ -133,6 +147,8 @@ const main = async () => {
   quorumServiceId = config.quorumServiceId || "quorum";
   quorumPeerId = config.quorumPeerId || peerId;
   quorumNumber = config.quorumNumber || 2;
+  scoreTrackerServiceId = config.scoreTrackerServiceId || "scoreTracker";
+  scoreTrackerPeerId = config.scoreTrackerPeerId || peerId;
 
   const app = express();
   app.use(bodyParser.json());
