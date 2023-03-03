@@ -16,26 +16,37 @@ export const getRpcsByScore = () => {
  *  - fastest provider (+1 point)
  * @param callResults results of provider calls ordered by fastest to slowest response
  * @param mode mode of call results
+ * @param isQuorumPassed whether quorum was passed
  */
-export const updateScores = (callResults: CallResult[], mode: string) => {
-  for (const [index, callResult] of callResults.entries()) {
+export const updateScores = (
+  callResults: CallResult[],
+  mode: string,
+  isQuorumPassed: boolean,
+) => {
+  for (const callResult of callResults) {
     const uri = callResult.provider;
     const isMode = callResult.result.value === mode;
 
-    const currentScore = scores[uri];
-
-    if (currentScore === undefined && !isMode) {
+    if (scores[uri] === undefined) {
       scores[uri] = 0;
     }
+    const currentScore = scores[uri];
 
-    if (isMode) {
-      scores[uri] = (currentScore || 0) + 1;
+    // Decrease score if call failed
+    if (!callResult.result.success) {
+      scores[uri] = currentScore - 1;
     }
 
-    // Update score for fastest provider
-    if (index === 0) {
-      scores[uri] += 1;
+    // Increase score if provider returned the mode (is aligned with quorum)
+    if (isMode && isQuorumPassed) {
+      scores[uri] = currentScore + 1;
     }
+  }
+
+  // Increase score for fastest provider who had a successful call
+  const fastestProvider = callResults.find((cr) => cr.result.success)?.provider;
+  if (fastestProvider) {
+    scores[fastestProvider] += 1;
   }
 };
 

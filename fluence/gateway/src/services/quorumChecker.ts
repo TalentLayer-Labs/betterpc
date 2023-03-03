@@ -1,6 +1,6 @@
 import { CallResult } from "../types";
 import { QuorumCheckerDef } from "../../aqua-compiled/rpc";
-import { getRpcsByScore, scores, updateScores } from "./scores";
+import { scores, updateScores } from "./scores";
 
 const getFrequencies = (values: string[]) => {
   return values.reduce((counts, result) => {
@@ -22,28 +22,19 @@ function findSameResults(callResults: CallResult[], minNum: number) {
 
   // Find most frequent value (mode)
   const maxFrequency = Math.max(...Object.values(resultFrequencies));
-  const mode = Object.entries(resultFrequencies).find(
-    (entry) => entry[1] === maxFrequency,
-  )?.[0];
+  const mode =
+    Object.entries(resultFrequencies).find(
+      (entry) => entry[1] === maxFrequency,
+    )?.[0] || "";
 
-  console.log("Result counts: ", resultFrequencies);
+  const isQuorumPassed = maxFrequency >= minNum;
+
   console.log("Mode: ", mode, ", repeated ", maxFrequency, "times");
 
-  if (maxFrequency >= minNum && mode) {
-    // Find rpcs which returned a value equal to the mode
-    const modeRpcs = callResults
-      .filter((cr) => cr.result.value === mode)
-      .map((cr) => cr.provider);
+  updateScores(callResults, mode, isQuorumPassed);
+  console.log("Scores: ", scores);
 
-    console.log("Mode rpcs: ", modeRpcs);
-
-    // Update rpcs scores (increase score by 1 for rpcs which returned most frequent value)
-    updateScores(callResults, mode);
-    console.log("Scores: ", scores);
-
-    const bestRpcs = getRpcsByScore();
-    console.log("Rpcs by score: ", bestRpcs);
-
+  if (isQuorumPassed) {
     return {
       value: mode,
       results,
