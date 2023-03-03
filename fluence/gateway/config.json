@@ -11,5 +11,9 @@
   "counterPeerId": null,
   "quorumServiceId": null,
   "quorumPeerId": null,
-  "quorumNumber": 3
+  "scoreTrackerServiceId": null,
+  "scoreTrackerPeerId": null,
+  "indexCounterServiceId": null,
+  "indexCounterPeerId": null,
+  "quorumNumber": 2
 }
