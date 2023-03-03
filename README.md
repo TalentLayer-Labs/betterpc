@@ -36,4 +36,6 @@ To install and run the project, follow these steps:
 
 4. Open your browser and navigate to http://localhost:8080. You should see the BetterRPC web interface.
 
+# Folder architecture
+
 # Code details
