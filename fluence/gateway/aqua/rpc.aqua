@@ -101,6 +101,7 @@ func roundRobin(uris: []string, method: string, jsonArgs: []string, counterServi
 func roundRobinEth(uris: []string, method: string, jsonArgs: []string, counterServiceId: string, counterPeerId: string) -> JsonString:
   <- roundRobin(uris, method, jsonArgs, counterServiceId, counterPeerId, call)
 
+-- Given a list of providers, returns a list of workers each one associated with a provider
 func getWorkersWithProviders(uris: []string, indexCounterServiceId: string, indexCounterPeerId: string) -> []WorkerWithProvider:
   workersWithProvider: *WorkerWithProvider
 
