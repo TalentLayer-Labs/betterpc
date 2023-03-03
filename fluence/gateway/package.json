@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "run:example": "fluence aqua -i aqua/ -o aqua-compiled/ --old-fluence-js && ts-node src/index.ts \"config.json\"",
+    "run:example": "ts-node src/index.ts \"config.json\"",
     "run": "fluence aqua -i aqua/ -o aqua-compiled/ --old-fluence-js && ts-node src/index.ts",
     "compile": "fluence aqua -i aqua/ -o aqua-compiled/ --old-fluence-js",
     "req": "node web3run.js"

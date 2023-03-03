@@ -16,6 +16,11 @@ data CallResult:
   result: JsonString
   provider: string
 
+data WorkerWithProvider:
+  peer_id: string
+  relay_id: []string
+  provider: string
+
 service Logger("logger"):
   log(s: []string)
   logNum(n: u32)
@@ -30,6 +35,14 @@ service Counter("counter"):
 
 service QuorumChecker("quorum"):
   check(results: []CallResult, minResults: u32) -> QuorumResult
+
+service Index("index"):
+  init()
+  increment()
+  current() -> u32
+
+service ScoreTracker("score"):
+  getProvidersByScore() -> []string
 
 func empty() -> JsonString:
   <- JsonString(value = "", success = true, error = "")
@@ -87,6 +100,23 @@ func roundRobin(uris: []string, method: string, jsonArgs: []string, counterServi
 
 func roundRobinEth(uris: []string, method: string, jsonArgs: []string, counterServiceId: string, counterPeerId: string) -> JsonString:
   <- roundRobin(uris, method, jsonArgs, counterServiceId, counterPeerId, call)
+
+func getWorkersWithProviders(uris: []string) -> []WorkerWithProvider:
+  workersWithProvider: *WorkerWithProvider
+
+  on INIT_PEER_ID:
+    Index.init()
+
+  on HOST_PEER_ID:
+    workers <- getWorkers()
+    for uri <- uris:
+      on INIT_PEER_ID:
+        i <- Index.current()
+      worker = workers[i]
+      workersWithProvider <<- WorkerWithProvider(peer_id = worker.metadata.peer_id, relay_id = worker.metadata.relay_id, provider = uri)
+      on INIT_PEER_ID:
+        Index.increment()
+  <- workersWithProvider
 
 func quorum(
   uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string,

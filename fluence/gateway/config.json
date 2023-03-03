@@ -4,7 +4,7 @@
     "https://goerli.infura.io/v3/c48f3b538f154204ad53d04aa8990544",
     "https://chaotic-cool-uranium.matic-testnet.discover.quiknode.pro/4a7f0274e744377a80e8a93c66f329149b895013/"
   ],
-  "mode": "round-robin",
+  "mode": "quorum",
   "relay": "/dns4/stage.fluence.dev/tcp/19001/wss/p2p/12D3KooWHCJbJKGDfCgHSoCuK9q4STyRnVveqLoXAPBbXHTZx9Cv",
   "port": 3000,
   "counterServiceId": null,
