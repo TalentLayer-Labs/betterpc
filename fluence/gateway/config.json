@@ -1,7 +1,7 @@
 {
   "providers": [
-    "https://goerli.infura.io/v3/77214656b25f4cad9cd2540c6d40c301",
-    "https://goerli.infura.io/v3/c48f3b538f154204ad53d04aa8990544",
+    "https://polygon-mumbai.infura.io/v3/7fc8c040b1ff42f4856fac55bf820376",
+    "https://polygon-mumbai.g.alchemy.com/v2/fjt7CxM2YtlMSj0FmKC14YqUsiGq32Ln",
     "https://chaotic-cool-uranium.matic-testnet.discover.quiknode.pro/4a7f0274e744377a80e8a93c66f329149b895013/"
   ],
   "mode": "round-robin",
