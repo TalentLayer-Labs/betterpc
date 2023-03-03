@@ -12,34 +12,29 @@ const getFrequencies = (values: string[]) => {
   }, {} as Record<string, any>);
 };
 
-function checkQuorum(callResults: CallResult[], minNum: number): QuorumResult {
-  const results = callResults.map((cr) => cr.result);
-  const values = results.filter((obj) => obj.success).map((obj) => obj.value);
-
-  // Count how many times each result is present
-  const resultFrequencies = getFrequencies(values);
-
-  // Find most frequent value (mode)
-  const maxFrequency = Math.max(...Object.values(resultFrequencies));
-  const mode =
-    Object.entries(resultFrequencies).find(
-      (entry) => entry[1] === maxFrequency,
-    )?.[0] || "";
-
-  const isPassed = maxFrequency >= minNum;
-
-  console.log("Mode: ", mode, ", repeated ", maxFrequency, "times");
-
-  return {
-    isPassed,
-    value: mode,
-    results,
-  };
-}
-
 export class QuorumChecker implements QuorumCheckerDef {
-  check(callResults: CallResult[], minQuorum: number) {
-    console.log("Call results: ", callResults);
-    return checkQuorum(callResults, minQuorum);
+  check(callResults: CallResult[], minNum: number): QuorumResult {
+    const results = callResults.map((cr) => cr.result);
+    const values = results.filter((obj) => obj.success).map((obj) => obj.value);
+
+    // Count how many times each result is present
+    const resultFrequencies = getFrequencies(values);
+
+    // Find most frequent value (mode)
+    const maxFrequency = Math.max(...Object.values(resultFrequencies));
+    const mode =
+      Object.entries(resultFrequencies).find(
+        (entry) => entry[1] === maxFrequency,
+      )?.[0] || "";
+
+    const isPassed = maxFrequency >= minNum;
+
+    console.log("Mode: ", mode, ", repeated ", maxFrequency, "times");
+
+    return {
+      isPassed,
+      value: mode,
+      results,
+    };
   }
 }
