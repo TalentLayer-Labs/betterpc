@@ -17,8 +17,9 @@ export class ScoreTracker implements ScoreTrackerDef {
 
   /**
    * Updates the scores of the providers based on:
-   *  - which providers returned the most frequent value (+1 point)
+   *  - coherence with quorum (+1 point)
    *  - fastest provider (+1 point)
+   *  - failed call (-1 point), except if all calls failed (which would probably mean the request was invalid)
    * @param callResults results of provider calls ordered by fastest to slowest response
    * @param mode mode of call results
    * @param isQuorumPassed whether quorum was passed
@@ -28,30 +29,34 @@ export class ScoreTracker implements ScoreTrackerDef {
     mode: string,
     isQuorumPassed: boolean,
   ) {
+    const allCallsFailed = callResults.every((cr) => !cr.result.success);
+
     for (const callResult of callResults) {
       const uri = callResult.provider;
       const isMode = callResult.result.value === mode;
 
+      // Initialize score if it hasn't been initialized yet
       if (scores[uri] === undefined) {
         scores[uri] = 0;
       }
       const currentScore = scores[uri];
 
       // Decrease score if call failed
-      if (!callResult.result.success) {
+      if (!callResult.result.success && !allCallsFailed) {
         scores[uri] = currentScore - 1;
       }
 
-      // Increase score if provider returned the mode (is aligned with quorum)
+      // Increase score if provider is aligned with quorum
       if (isMode && isQuorumPassed) {
         scores[uri] = currentScore + 1;
       }
     }
 
-    // Increase score for fastest provider who had a successful call
+    // Increase score for the fastest provider who had a successful call
     const fastestProvider = callResults.find(
       (cr) => cr.result.success,
     )?.provider;
+
     if (fastestProvider) {
       scores[fastestProvider] += 1;
     }
