@@ -84,11 +84,13 @@ async function methodHandler(reqRaw: any, method: string) {
       { ttl: 20000 },
     );
 
-    if (result.error) {
-      return { error: result.error, results: result.results };
+    if (!result.isPassed) {
+      return {
+        error: "No consensus in result",
+        results: result.results,
+        value: result.value,
+      };
     }
-
-    console.log(result);
   }
 
   return JSON.parse(result.value);

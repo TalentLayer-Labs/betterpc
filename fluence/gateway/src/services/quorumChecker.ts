@@ -1,5 +1,5 @@
 import { CallResult } from "../types";
-import { QuorumCheckerDef } from "../../aqua-compiled/rpc";
+import { QuorumCheckerDef, QuorumResult } from "../../aqua-compiled/rpc";
 import { getScores, updateScores } from "./scores";
 
 const getFrequencies = (values: string[]) => {
@@ -13,7 +13,7 @@ const getFrequencies = (values: string[]) => {
   }, {} as Record<string, any>);
 };
 
-function findSameResults(callResults: CallResult[], minNum: number) {
+function checkQuorum(callResults: CallResult[], minNum: number): QuorumResult {
   const results = callResults.map((cr) => cr.result);
   const values = results.filter((obj) => obj.success).map((obj) => obj.value);
 
@@ -27,31 +27,23 @@ function findSameResults(callResults: CallResult[], minNum: number) {
       (entry) => entry[1] === maxFrequency,
     )?.[0] || "";
 
-  const isQuorumPassed = maxFrequency >= minNum;
+  const isPassed = maxFrequency >= minNum;
 
   console.log("Mode: ", mode, ", repeated ", maxFrequency, "times");
 
-  updateScores(callResults, mode, isQuorumPassed);
+  updateScores(callResults, mode, isPassed);
   console.log("Scores: ", getScores());
 
-  if (isQuorumPassed) {
-    return {
-      value: mode,
-      results,
-      error: "",
-    };
-  } else {
-    return {
-      error: "No consensus in results",
-      results,
-      value: "",
-    };
-  }
+  return {
+    isPassed,
+    value: mode,
+    results,
+  };
 }
 
 export class QuorumChecker implements QuorumCheckerDef {
   check(callResults: CallResult[], minQuorum: number) {
     console.log("Call results: ", callResults);
-    return findSameResults(callResults, minQuorum);
+    return checkQuorum(callResults, minQuorum);
   }
 }
