@@ -5,7 +5,7 @@ import "@fluencelabs/registry/subnetwork.aqua"
 import Registry, Record from "@fluencelabs/registry/registry-service.aqua"
 import "@fluencelabs/spell/spell_service.aqua"
 
-export randomLoadBalancingEth, roundRobinEth, quorumEth, Counter, Logger, ethCallOptimized
+export randomLoadBalancingEth, roundRobinEth, quorumEth, Counter, Logger, optimizedEth
 
 data QuorumResult:
   isPassed: bool
@@ -146,7 +146,7 @@ func quorumEth(uris: []string, quorumNumber: u32, timeout: u32, method: string, 
 
 -- Executes an rpc call priotitizing providers with the highest score and handling failover.
 -- Will first try with the provider with the highest score, if it fails will try with the next one, and so on.
-func ethCallOptimized(method: string, jsonArgs: []string) -> ?JsonString:
+func optimized(method: string, jsonArgs: []string, callFunc: string, string, []string -> JsonString) -> ?JsonString:
   return: ?JsonString
 
   on INIT_PEER_ID via HOST_PEER_ID:
@@ -158,9 +158,12 @@ func ethCallOptimized(method: string, jsonArgs: []string) -> ?JsonString:
 
     for provider <- providers:
       if return == nil:
-        result <- callOnWorker(worker, provider, method, jsonArgs, call)
+        result <- callOnWorker(worker, provider, method, jsonArgs, callFunc)
 
         -- break loop and return if call had success otherwise go to next provider
         if result.success:
           return <<- result
   <- return
+
+func optimizedEth(method: string, jsonArgs: []string) -> ?JsonString:
+  <- optimized(method, jsonArgs, call)

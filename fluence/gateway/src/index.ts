@@ -9,7 +9,7 @@ import { Fluence } from "@fluencelabs/fluence";
 // import { Fluence } from "@fluencelabs/js-client.api";
 // import "@fluencelabs/js-client.node";
 import {
-  ethCallOptimized,
+  optimizedEth,
   quorumEth,
   randomLoadBalancingEth,
   registerCounter,
@@ -25,7 +25,7 @@ import { methods } from "./methods";
 import { Logger } from "./services/logger";
 import { Counter } from "./services/counter";
 import { QuorumChecker } from "./services/quorumChecker";
-import { ScoreTracker } from "./services/scores";
+import { getScores, ScoreTracker } from "./services/scores";
 import { Index } from "./services/indexService";
 
 const args = readArguments(process.argv.slice(2));
@@ -87,6 +87,12 @@ async function methodHandler(reqRaw: any, method: string) {
       { ttl: 20000 },
     );
 
+    const scores = await getScores();
+    console.log("Provider scores: ", scores);
+
+    const res = await optimizedEth(method, req);
+    console.log("Optimized result: " + res?.value);
+
     if (!result.isPassed) {
       return {
         error: "No consensus in result",
@@ -95,7 +101,7 @@ async function methodHandler(reqRaw: any, method: string) {
       };
     }
   } else if (config.mode === "optimized") {
-    result = await ethCallOptimized(method, req);
+    result = await optimizedEth(method, req);
   }
 
   return JSON.parse(result.value);

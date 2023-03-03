@@ -14,6 +14,8 @@ const getFrequencies = (values: string[]) => {
 
 export class QuorumChecker implements QuorumCheckerDef {
   check(callResults: CallResult[], minNum: number): QuorumResult {
+    console.log("Call results: ", callResults);
+
     const results = callResults.map((cr) => cr.result);
     const values = results.filter((obj) => obj.success).map((obj) => obj.value);
 
