@@ -124,17 +124,14 @@ func quorum(
 ) -> QuorumResult:
   results: *CallResult
   on HOST_PEER_ID:
-    workers <- getWorkers()
-    for worker <- workers par:
-      on worker.metadata.peer_id via worker.metadata.relay_id:
-        -- choose provider randomly
-        timeP <- NumOp.identity(Peer.timestamp_ms())
-        providerNumber = timeP % uris.length
-        provider = uris[providerNumber]
+    workersWithProviders <- getWorkersWithProviders(uris)
+    for workerWithProvider <- workersWithProviders par:
+      on workerWithProvider.peer_id via workerWithProvider.relay_id:
+        provider = workerWithProvider.provider
         result <- callFunc(provider, method, jsonArgs)
         results <<- CallResult(result = result, provider = provider)
     -- wait all results from all workers with timeout
-    join results[workers.length - 1]
+    join results[workersWithProviders.length - 1]
     par Peer.timeout(timeout, "")
   on quorumPeerId via HOST_PEER_ID:
     Counter quorumServiceId
