@@ -19,24 +19,15 @@ import {
   registerScoreTracker,
   roundRobinEth,
 } from "../aqua-compiled/rpc";
-import { readArguments } from "./arguments";
-import { readConfig } from "./config";
+import { getConfig } from "./config";
 import { methods } from "./methods";
 import { Logger } from "./services/logger";
 import { Counter } from "./services/counter";
 import { QuorumChecker } from "./services/quorumChecker";
-import { getScores, ScoreTracker } from "./services/scores";
+import { getScores, ScoreTracker } from "./services/scoreTracker";
 import { IndexCounter } from "./services/indexCounter";
 
-const args = readArguments(process.argv.slice(2));
-
-if (args.errors.length > 0) {
-  console.log(args.help);
-  args.errors.forEach((err) => console.log(err));
-  process.exit(1);
-}
-
-const { config, errors, help } = readConfig(args.configPath);
+const config = getConfig();
 
 let counterServiceId: string;
 let counterPeerId: string;
@@ -48,12 +39,6 @@ let scoreTrackerPeerId: string;
 let indexCounterServiceId: string;
 let indexCounterPeerId: string;
 let peerId: string;
-
-if (errors.length > 0) {
-  errors.forEach((err) => console.log(err));
-  console.log(help);
-  process.exit(1);
-}
 
 console.log("Running server...");
 

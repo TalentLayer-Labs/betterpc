@@ -15,5 +15,8 @@
   "scoreTrackerPeerId": null,
   "indexCounterServiceId": null,
   "indexCounterPeerId": null,
+  "latencyPoints": 5,
+  "quorumPoints": 2,
+  "failedCallPoints": -1,
   "quorumNumber": 2
 }

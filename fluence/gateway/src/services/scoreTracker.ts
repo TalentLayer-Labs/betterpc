@@ -1,5 +1,12 @@
 import { CallResult } from "../types";
 import { ScoreTrackerDef } from "../../aqua-compiled/rpc";
+import { getConfig } from "../config";
+
+const config = getConfig();
+
+const failedCallPoints = config.failedCallPoints || -1;
+const quorumPoints = config.quorumPoints || 2;
+const latencyPoints = config.latencyPoints || 1;
 
 // Provider url to score
 const scores: Record<string, number> = {};
@@ -43,12 +50,12 @@ export class ScoreTracker implements ScoreTrackerDef {
 
       // Decrease score if call failed
       if (!callResult.result.success && !allCallsFailed) {
-        scores[uri] = currentScore - 1;
+        scores[uri] = currentScore + failedCallPoints;
       }
 
       // Increase score if provider is aligned with quorum
       if (isMode && isQuorumPassed) {
-        scores[uri] = currentScore + 1;
+        scores[uri] = currentScore + quorumPoints;
       }
     }
 
@@ -58,7 +65,7 @@ export class ScoreTracker implements ScoreTrackerDef {
     )?.provider;
 
     if (fastestProvider) {
-      scores[fastestProvider] += 1;
+      scores[fastestProvider] += latencyPoints;
     }
   }
 }

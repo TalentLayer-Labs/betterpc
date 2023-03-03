@@ -1,4 +1,5 @@
 import fs from "fs";
+import { readArguments } from "./arguments";
 
 export const configHelp =
   "Config structure: { port, relay, serviceId, providers, mode, counterServiceId?, counterPeerId?}\n" +
@@ -23,4 +24,24 @@ export function readConfig(path: string) {
     errors,
     help: configHelp,
   };
+}
+
+export function getConfig() {
+  const args = readArguments(process.argv.slice(2));
+
+  if (args.errors.length > 0) {
+    console.log(args.help);
+    args.errors.forEach((err) => console.log(err));
+    process.exit(1);
+  }
+
+  const { config, errors, help } = readConfig(args.configPath);
+
+  if (errors.length > 0) {
+    errors.forEach((err) => console.log(err));
+    console.log(help);
+    process.exit(1);
+  }
+
+  return config;
 }
