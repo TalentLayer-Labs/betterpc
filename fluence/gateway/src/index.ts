@@ -45,6 +45,8 @@ let quorumPeerId: string;
 let quorumNumber: number;
 let scoreTrackerServiceId: string;
 let scoreTrackerPeerId: string;
+let indexCounterServiceId: string;
+let indexCounterPeerId: string;
 let peerId: string;
 
 if (errors.length > 0) {
@@ -88,6 +90,8 @@ async function methodHandler(reqRaw: any, method: string) {
       quorumPeerId,
       scoreTrackerServiceId,
       scoreTrackerPeerId,
+      indexCounterServiceId,
+      indexCounterPeerId,
       { ttl: 20000 },
     );
 
@@ -149,6 +153,8 @@ const main = async () => {
   quorumNumber = config.quorumNumber || 2;
   scoreTrackerServiceId = config.scoreTrackerServiceId || "scoreTracker";
   scoreTrackerPeerId = config.scoreTrackerPeerId || peerId;
+  indexCounterServiceId = config.indexCounterServiceId || "indexCounter";
+  indexCounterPeerId = config.indexCounterPeerId || peerId;
 
   const app = express();
   app.use(bodyParser.json());

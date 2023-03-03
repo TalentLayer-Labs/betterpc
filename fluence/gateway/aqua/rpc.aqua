@@ -101,7 +101,7 @@ func roundRobin(uris: []string, method: string, jsonArgs: []string, counterServi
 func roundRobinEth(uris: []string, method: string, jsonArgs: []string, counterServiceId: string, counterPeerId: string) -> JsonString:
   <- roundRobin(uris, method, jsonArgs, counterServiceId, counterPeerId, call)
 
-func getWorkersWithProviders(uris: []string) -> []WorkerWithProvider:
+func getWorkersWithProviders(uris: []string, indexCounterServiceId: string, indexCounterPeerId: string) -> []WorkerWithProvider:
   workersWithProvider: *WorkerWithProvider
 
   on INIT_PEER_ID via HOST_PEER_ID:
@@ -117,31 +117,43 @@ func getWorkersWithProviders(uris: []string) -> []WorkerWithProvider:
   <- workersWithProvider
 
 func quorum(
-  uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string, scoreTrackerServiceId: string, scoreTrackerPeerId: string,
+  uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string,
+  quorumServiceId: string, quorumPeerId: string,
+  scoreTrackerServiceId: string, scoreTrackerPeerId: string,
+  indexCounterServiceId: string, indexCounterPeerId: string,
   callFunc: string, string, []string -> JsonString
 ) -> QuorumResult:
   results: *CallResult
   on HOST_PEER_ID:
-    workersWithProviders <- getWorkersWithProviders(uris)
+    workersWithProviders <- getWorkersWithProviders(uris, indexCounterServiceId, indexCounterPeerId)
+
     for workerWithProvider <- workersWithProviders par:
       on workerWithProvider.peer_id via workerWithProvider.relay_id:
         provider = workerWithProvider.provider
         result <- callFunc(provider, method, jsonArgs)
         results <<- CallResult(result = result, provider = provider)
+
     -- wait all results from all workers with timeout
     join results[workersWithProviders.length - 1]
     par Peer.timeout(timeout, "")
+
   on quorumPeerId via HOST_PEER_ID:
     QuorumChecker quorumServiceId
     -- check all results that we got
     quorumResult <- QuorumChecker.check(results, quorumNumber)
+    
   on scoreTrackerPeerId via HOST_PEER_ID:
     ScoreTracker scoreTrackerServiceId
     ScoreTracker.updateScores(results, quorumResult.value, quorumResult.isPassed)
   <- quorumResult
 
-func quorumEth(uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string, scoreTrackerServiceId: string, scoreTrackerPeerId: string ) -> QuorumResult:
-  <- quorum(uris, quorumNumber, timeout, method, jsonArgs, quorumServiceId, quorumPeerId, scoreTrackerServiceId, scoreTrackerPeerId, call)
+func quorumEth(
+  uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string,
+  quorumServiceId: string, quorumPeerId: string,
+  scoreTrackerServiceId: string, scoreTrackerPeerId: string,
+  indexCounterServiceId: string, indexCounterPeerId: string
+) -> QuorumResult:
+  <- quorum(uris, quorumNumber, timeout, method, jsonArgs, quorumServiceId, quorumPeerId, scoreTrackerServiceId, scoreTrackerPeerId, indexCounterServiceId, indexCounterPeerId, call)
 
 -- Executes an rpc call priotitizing providers with the highest score and handling failover.
 -- Will first try with the provider with the highest score, if it fails will try with the next one, and so on.
