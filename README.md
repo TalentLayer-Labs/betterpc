@@ -1,4 +1,4 @@
-## FLUENCE x TALENTLAYER 🚀 BetterRPC - ETH Denver 2023 🚀
+## FLUENCE x TALENTLAYER 🚀 BetteRPC - ETH Denver 2023 🚀
 
 ## Overview / Description
 
