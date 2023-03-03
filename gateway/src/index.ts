@@ -14,6 +14,7 @@ import {
   registerCounter,
   registerLogger,
   registerQuorumChecker,
+  registerScoreTracker,
   roundRobinEth,
 } from "../aqua-compiled/rpc";
 import { readArguments } from "./arguments";
@@ -22,12 +23,7 @@ import { methods } from "./methods";
 import { Logger } from "./services/logger";
 import { Counter } from "./services/counter";
 import { QuorumChecker } from "./services/quorumChecker";
-
-interface EthResult {
-  error: string;
-  success: boolean;
-  value: string;
-}
+import { ScoreTracker } from "./services/scores";
 
 const args = readArguments(process.argv.slice(2));
 
@@ -112,8 +108,9 @@ const main = async () => {
 
   // Register services
   registerLogger(new Logger());
-  registerCounter("counter", new Counter());
-  registerQuorumChecker("quorum", new QuorumChecker());
+  registerCounter(new Counter());
+  registerQuorumChecker(new QuorumChecker());
+  registerScoreTracker(new ScoreTracker());
 
   counterServiceId = config.counterServiceId || "counter";
   counterPeerId = config.counterPeerId || peerId;

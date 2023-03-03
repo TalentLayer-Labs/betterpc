@@ -3,3 +3,8 @@ export interface EthResult {
   success: boolean;
   value: string;
 }
+
+export interface CallResult {
+  provider: string;
+  result: EthResult;
+}

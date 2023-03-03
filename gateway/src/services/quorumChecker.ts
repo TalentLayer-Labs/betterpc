@@ -1,48 +1,6 @@
-import { EthResult } from "types";
+import { CallResult } from "../types";
 import { QuorumCheckerDef } from "../../aqua-compiled/rpc";
-
-export interface CallResult {
-  provider: string;
-  result: EthResult;
-}
-
-// Provider url to score
-const scores: Record<string, number> = {};
-
-const getRpcsByScore = () => {
-  return Object.entries(scores)
-    .sort((entry1, entry2) => (entry1[1] <= entry2[1] ? 1 : -1))
-    .map((entry) => entry[0]);
-};
-
-/**
- * Updates the scores of the providers based on:
- *  - which providers returned the most frequent value (+1 point)
- *  - fastest provider (+1 point)
- * @param callResults results of provider calls ordered by fastest to slowest response
- * @param mode mode of call results
- */
-const updateScores = (callResults: CallResult[], mode: string) => {
-  for (const [index, callResult] of callResults.entries()) {
-    const uri = callResult.provider;
-    const isMode = callResult.result.value === mode;
-
-    const currentScore = scores[uri];
-
-    if (currentScore === undefined && !isMode) {
-      scores[uri] = 0;
-    }
-
-    if (isMode) {
-      scores[uri] = (currentScore || 0) + 1;
-    }
-
-    // Update score for fastest provider
-    if (index === 0) {
-      scores[uri] += 1;
-    }
-  }
-};
+import { getRpcsByScore, scores, updateScores } from "./scores";
 
 const getFrequencies = (values: string[]) => {
   return values.reduce((counts, result) => {
@@ -104,9 +62,5 @@ export class QuorumChecker implements QuorumCheckerDef {
   check(callResults: CallResult[], minQuorum: number) {
     console.log("Call results: ", callResults);
     return findSameResults(callResults, minQuorum);
-  }
-
-  getProvidersByScore() {
-    return getRpcsByScore();
   }
 }
