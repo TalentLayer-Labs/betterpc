@@ -2,7 +2,11 @@ import { CallResult } from "../types";
 import { ScoreTrackerDef } from "../../aqua-compiled/rpc";
 
 // Provider url to score
-export const scores: Record<string, number> = {};
+const scores: Record<string, number> = {};
+
+export const getScores = () => {
+  return scores;
+};
 
 export const getRpcsByScore = () => {
   return Object.entries(scores)

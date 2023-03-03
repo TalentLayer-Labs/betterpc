@@ -1,6 +1,6 @@
 import { CallResult } from "../types";
 import { QuorumCheckerDef } from "../../aqua-compiled/rpc";
-import { scores, updateScores } from "./scores";
+import { getScores, updateScores } from "./scores";
 
 const getFrequencies = (values: string[]) => {
   return values.reduce((counts, result) => {
@@ -32,7 +32,7 @@ function findSameResults(callResults: CallResult[], minNum: number) {
   console.log("Mode: ", mode, ", repeated ", maxFrequency, "times");
 
   updateScores(callResults, mode, isQuorumPassed);
-  console.log("Scores: ", scores);
+  console.log("Scores: ", getScores());
 
   if (isQuorumPassed) {
     return {
