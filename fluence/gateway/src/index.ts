@@ -18,6 +18,7 @@ import {
   registerQuorumChecker,
   registerScoreTracker,
   roundRobinEth,
+  registerNumOp,
 } from "../aqua-compiled/rpc";
 import { getConfig } from "./config";
 import { methods } from "./methods";
@@ -26,6 +27,7 @@ import { Counter } from "./services/counter";
 import { QuorumChecker } from "./services/quorumChecker";
 import { getScores, ScoreTracker } from "./services/scoreTracker";
 import { IndexCounter } from "./services/indexCounter";
+import { NumOp } from "./services/numOp";
 
 const config = getConfig();
 
@@ -77,21 +79,23 @@ async function methodHandler(reqRaw: any, method: string) {
       scoreTrackerPeerId,
       indexCounterServiceId,
       indexCounterPeerId,
+      counterServiceId,
+      counterPeerId,
       { ttl: 20000 },
     );
 
     const scores = await getScores();
     console.log("Provider scores: ", scores);
 
-    const res = await optimizedEth(
-      method,
-      req,
-      scoreTrackerServiceId,
-      scoreTrackerPeerId,
-    );
-    console.log("Optimized result: " + res?.value);
+    // const res = await optimizedEth(
+    //   method,
+    //   req,
+    //   scoreTrackerServiceId,
+    //   scoreTrackerPeerId,
+    // );
+    // console.log("Optimized result: " + res?.value);
 
-    if (!result.isPassed) {
+    if (!result.didPass) {
       return {
         error: "No consensus in result",
         results: result.results,
@@ -126,6 +130,7 @@ const main = async () => {
 
   // Register services
   registerLogger(new Logger());
+  registerNumOp(new NumOp());
   registerCounter(new Counter());
   registerQuorumChecker(new QuorumChecker());
   registerScoreTracker(new ScoreTracker());

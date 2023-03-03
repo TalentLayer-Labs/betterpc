@@ -29,9 +29,10 @@ service Logger("logger"):
 
 service NumOp("op"):
   identity(n: u64) -> i64
+  add(a: i64, b: i64) -> i64
 
 service Counter("counter"):
-  incrementAndReturn() -> u32
+  incrementAndReturn(id: string) -> u32
 
 service QuorumChecker("quorum"):
   check(results: []CallResult, minResults: u32) -> QuorumResult
@@ -86,7 +87,7 @@ func randomLoadBalancingEth(uris: []string, method: string, jsonArgs: []string) 
 func roundRobin(uris: []string, method: string, jsonArgs: []string, counterServiceId: string, counterPeerId: string, callFunc: string, string, []string -> JsonString) -> JsonString:
   on counterPeerId:
     Counter counterServiceId
-    requestNumber <- Counter.incrementAndReturn()
+    requestNumber <- Counter.incrementAndReturn("round-robin")
   on HOST_PEER_ID:
     workers <- getWorkers()
     workerNumber = requestNumber % workers.length
@@ -102,17 +103,29 @@ func roundRobinEth(uris: []string, method: string, jsonArgs: []string, counterSe
   <- roundRobin(uris, method, jsonArgs, counterServiceId, counterPeerId, call)
 
 -- Given a list of providers, returns a list of workers each one associated with a provider
-func getWorkersWithProviders(uris: []string, indexCounterServiceId: string, indexCounterPeerId: string) -> []WorkerWithProvider:
+-- The workers are taken from the list of workers starting at a random index, so that a provider
+-- is not always associated with the same worker
+func getWorkersWithProviders(uris: []string, indexCounterServiceId: string, indexCounterPeerId: string, counterServiceId: string, counterPeerId: string) -> []WorkerWithProvider:
   workersWithProvider: *WorkerWithProvider
+  
+  on counterPeerId:
+    Counter counterServiceId
+    requestNumber <- Counter.incrementAndReturn("workers")
 
   on INIT_PEER_ID via HOST_PEER_ID:
     IndexCounter.init()
 
   on HOST_PEER_ID:
     workers <- getWorkers()
+    
+    -- choose initial index for workers randomly
+    initialIndex = requestNumber % workers.length
+
     for uri <- uris:
       on INIT_PEER_ID via HOST_PEER_ID:
         i <- IndexCounter.getCurrentAndIncrement()
+        index <- NumOp.add(initialIndex, i)
+        workerIndex = index % workers.length
       worker = workers[i]
       workersWithProvider <<- WorkerWithProvider(peer_id = worker.metadata.peer_id, relay_id = worker.metadata.relay_id, provider = uri)
   <- workersWithProvider
@@ -122,11 +135,12 @@ func quorum(
   quorumServiceId: string, quorumPeerId: string,
   scoreTrackerServiceId: string, scoreTrackerPeerId: string,
   indexCounterServiceId: string, indexCounterPeerId: string,
+  counterServiceId: string, counterPeerId: string,
   callFunc: string, string, []string -> JsonString
 ) -> QuorumResult:
   results: *CallResult
   on HOST_PEER_ID:
-    workersWithProviders <- getWorkersWithProviders(uris, indexCounterServiceId, indexCounterPeerId)
+    workersWithProviders <- getWorkersWithProviders(uris, indexCounterServiceId, indexCounterPeerId, counterServiceId, counterPeerId)
 
     for workerWithProvider <- workersWithProviders par:
       on workerWithProvider.peer_id via workerWithProvider.relay_id:
@@ -152,9 +166,10 @@ func quorumEth(
   uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string,
   quorumServiceId: string, quorumPeerId: string,
   scoreTrackerServiceId: string, scoreTrackerPeerId: string,
-  indexCounterServiceId: string, indexCounterPeerId: string
+  indexCounterServiceId: string, indexCounterPeerId: string,
+  counterServiceId: string, counterPeerId: string
 ) -> QuorumResult:
-  <- quorum(uris, quorumNumber, timeout, method, jsonArgs, quorumServiceId, quorumPeerId, scoreTrackerServiceId, scoreTrackerPeerId, indexCounterServiceId, indexCounterPeerId, call)
+  <- quorum(uris, quorumNumber, timeout, method, jsonArgs, quorumServiceId, quorumPeerId, scoreTrackerServiceId, scoreTrackerPeerId, indexCounterServiceId, indexCounterPeerId, counterServiceId, counterPeerId, call)
 
 -- Executes an rpc call priotitizing providers with the highest score and handling failover.
 -- Will first try with the provider with the highest score, if it fails will try with the next one, and so on.
