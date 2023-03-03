@@ -12,6 +12,10 @@ data QuorumResult:
   results: []JsonString
   error: string
 
+data CallResult:
+  result: JsonString
+  provider: string
+
 service Logger("logger"):
   log(s: []string)
   logNum(n: u32)
@@ -25,7 +29,7 @@ service Counter("counter"):
   incrementAndReturn() -> u32
 
 service QuorumChecker("quorum"):
-  check(results: []JsonString, minResults: u32) -> QuorumResult
+  check(results: []CallResult, minResults: u32) -> QuorumResult
 
 func empty() -> JsonString:
   <- JsonString(value = "", success = true, error = "")
@@ -88,7 +92,7 @@ func quorum(
   uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string,
   callFunc: string, string, []string -> JsonString
 ) -> QuorumResult:
-  results: *JsonString
+  results: *CallResult
   on HOST_PEER_ID:
     workers <- getWorkers()
     for worker <- workers par:
@@ -97,7 +101,8 @@ func quorum(
         timeP <- NumOp.identity(Peer.timestamp_ms())
         providerNumber = timeP % uris.length
         provider = uris[providerNumber]
-        results <- callFunc(provider, method, jsonArgs)
+        result <- callFunc(provider, method, jsonArgs)
+        results <<- CallResult(result = result, provider = provider)
     -- wait all results from all workers with timeout
     join results[workers.length - 1]
     par Peer.timeout(timeout, "")
