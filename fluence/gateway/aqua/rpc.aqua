@@ -36,10 +36,9 @@ service Counter("counter"):
 service QuorumChecker("quorum"):
   check(results: []CallResult, minResults: u32) -> QuorumResult
 
-service Index("index"):
+service IndexCounter("indexCounter"):
   init()
-  increment()
-  current() -> u32
+  getCurrentAndIncrement() -> u32
 
 service ScoreTracker("scoreTracker"):
   updateScores(results: []CallResult, mode: string, isQuorumPassed: bool)
@@ -105,18 +104,16 @@ func roundRobinEth(uris: []string, method: string, jsonArgs: []string, counterSe
 func getWorkersWithProviders(uris: []string) -> []WorkerWithProvider:
   workersWithProvider: *WorkerWithProvider
 
-  on INIT_PEER_ID:
-    Index.init()
+  on INIT_PEER_ID via HOST_PEER_ID:
+    IndexCounter.init()
 
   on HOST_PEER_ID:
     workers <- getWorkers()
     for uri <- uris:
-      on INIT_PEER_ID:
-        i <- Index.current()
+      on INIT_PEER_ID via HOST_PEER_ID:
+        i <- IndexCounter.getCurrentAndIncrement()
       worker = workers[i]
       workersWithProvider <<- WorkerWithProvider(peer_id = worker.metadata.peer_id, relay_id = worker.metadata.relay_id, provider = uri)
-      on INIT_PEER_ID:
-        Index.increment()
   <- workersWithProvider
 
 func quorum(

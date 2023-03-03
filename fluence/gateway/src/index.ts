@@ -13,7 +13,7 @@ import {
   quorumEth,
   randomLoadBalancingEth,
   registerCounter,
-  registerIndex,
+  registerIndexCounter,
   registerLogger,
   registerQuorumChecker,
   registerScoreTracker,
@@ -26,7 +26,7 @@ import { Logger } from "./services/logger";
 import { Counter } from "./services/counter";
 import { QuorumChecker } from "./services/quorumChecker";
 import { getScores, ScoreTracker } from "./services/scores";
-import { Index } from "./services/indexService";
+import { IndexCounter } from "./services/indexCounter";
 
 const args = readArguments(process.argv.slice(2));
 
@@ -140,7 +140,7 @@ const main = async () => {
   registerCounter(new Counter());
   registerQuorumChecker(new QuorumChecker());
   registerScoreTracker(new ScoreTracker());
-  registerIndex(new Index());
+  registerIndexCounter(new IndexCounter());
 
   counterServiceId = config.counterServiceId || "counter";
   counterPeerId = config.counterPeerId || peerId;
