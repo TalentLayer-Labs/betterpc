@@ -29,12 +29,12 @@ export class ScoreTracker implements ScoreTrackerDef {
    *  - failed call (-1 point), except if all calls failed (which would probably mean the request was invalid)
    * @param callResults results of provider calls ordered by fastest to slowest response
    * @param mode mode of call results
-   * @param isQuorumPassed whether quorum was passed
+   * @param didQuorumPass whether quorum was passed
    */
   updateScores(
     callResults: CallResult[],
     mode: string,
-    isQuorumPassed: boolean,
+    didQuorumPass: boolean,
   ) {
     const allCallsFailed = callResults.every((cr) => !cr.result.success);
 
@@ -54,7 +54,7 @@ export class ScoreTracker implements ScoreTrackerDef {
       }
 
       // Increase score if provider is aligned with quorum
-      if (isMode && isQuorumPassed) {
+      if (isMode && didQuorumPass) {
         scores[uri] = currentScore + quorumPoints;
       }
     }

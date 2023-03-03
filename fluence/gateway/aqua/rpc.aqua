@@ -8,7 +8,7 @@ import "@fluencelabs/spell/spell_service.aqua"
 export randomLoadBalancingEth, roundRobinEth, quorumEth, Counter, Logger, optimizedEth
 
 data QuorumResult:
-  isPassed: bool
+  didPass: bool
   value: string
   results: []JsonString
 
@@ -41,7 +41,7 @@ service IndexCounter("indexCounter"):
   getCurrentAndIncrement() -> u32
 
 service ScoreTracker("scoreTracker"):
-  updateScores(results: []CallResult, mode: string, isQuorumPassed: bool)
+  updateScores(results: []CallResult, mode: string, didQuorumPass: bool)
   getProvidersByScore() -> []string
 
 func empty() -> JsonString:
@@ -145,7 +145,7 @@ func quorum(
     
   on scoreTrackerPeerId via HOST_PEER_ID:
     ScoreTracker scoreTrackerServiceId
-    ScoreTracker.updateScores(results, quorumResult.value, quorumResult.isPassed)
+    ScoreTracker.updateScores(results, quorumResult.value, quorumResult.didPass)
   <- quorumResult
 
 func quorumEth(

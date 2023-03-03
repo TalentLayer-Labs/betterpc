@@ -29,12 +29,12 @@ export class QuorumChecker implements QuorumCheckerDef {
         (entry) => entry[1] === maxFrequency,
       )?.[0] || "";
 
-    const isPassed = maxFrequency >= minNum;
+    const didPass = maxFrequency >= minNum;
 
-    console.log("Mode: ", mode, ", repeated ", maxFrequency, "times");
+    console.log("Quorum result: ", { mode, frequency: maxFrequency, didPass });
 
     return {
-      isPassed,
+      didPass,
       value: mode,
       results,
     };
