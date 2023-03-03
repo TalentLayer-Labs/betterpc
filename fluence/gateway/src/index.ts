@@ -9,6 +9,7 @@ import { Fluence } from "@fluencelabs/fluence";
 // import { Fluence } from "@fluencelabs/js-client.api";
 // import "@fluencelabs/js-client.node";
 import {
+  ethCallOptimized,
   quorumEth,
   randomLoadBalancingEth,
   registerCounter,
@@ -58,8 +59,10 @@ const server = new JSONRPCServer();
 
 async function methodHandler(reqRaw: any, method: string) {
   const req = reqRaw.map((s: any) => JSON.stringify(s));
-  console.log(`Receiving request '${method}'`);
   let result: any;
+
+  console.log(`Receiving request '${method}'`);
+
   if (!config.mode || config.mode === "random") {
     result = await randomLoadBalancingEth(config.providers, method, req);
   } else if (config.mode === "round-robin") {
@@ -91,6 +94,8 @@ async function methodHandler(reqRaw: any, method: string) {
         value: result.value,
       };
     }
+  } else if (config.mode === "optimized") {
+    result = await ethCallOptimized(method, req);
   }
 
   return JSON.parse(result.value);

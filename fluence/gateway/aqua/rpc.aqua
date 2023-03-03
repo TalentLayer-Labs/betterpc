@@ -5,12 +5,12 @@ import "@fluencelabs/registry/subnetwork.aqua"
 import Registry, Record from "@fluencelabs/registry/registry-service.aqua"
 import "@fluencelabs/spell/spell_service.aqua"
 
-export randomLoadBalancingEth, roundRobinEth, quorumEth, Counter, Logger
+export randomLoadBalancingEth, roundRobinEth, quorumEth, Counter, Logger, ethCallOptimized
 
 data QuorumResult:
+  isPassed: bool
   value: string
   results: []JsonString
-  error: string
 
 data CallResult:
   result: JsonString
@@ -42,6 +42,7 @@ service Index("index"):
   current() -> u32
 
 service ScoreTracker("score"):
+  updateScores(results: []CallResult, mode: string, isQuorumPassed: bool)
   getProvidersByScore() -> []string
 
 func empty() -> JsonString:
@@ -134,10 +135,32 @@ func quorum(
     join results[workersWithProviders.length - 1]
     par Peer.timeout(timeout, "")
   on quorumPeerId via HOST_PEER_ID:
-    Counter quorumServiceId
+    QuorumChecker quorumServiceId
     -- check all results that we got
     quorumResult <- QuorumChecker.check(results, quorumNumber)
+    ScoreTracker.updateScores(results, quorumResult.value, quorumResult.isPassed)
   <- quorumResult
 
 func quorumEth(uris: []string, quorumNumber: u32, timeout: u32, method: string, jsonArgs: []string, quorumServiceId: string, quorumPeerId: string) -> QuorumResult:
   <- quorum(uris, quorumNumber, timeout, method, jsonArgs, quorumServiceId, quorumPeerId, call)
+
+-- Executes an rpc call priotitizing providers with the highest score and handling failover.
+-- Will first try with the provider with the highest score, if it fails will try with the next one, and so on.
+func ethCallOptimized(method: string, jsonArgs: []string) -> ?JsonString:
+  return: ?JsonString
+
+  on INIT_PEER_ID via HOST_PEER_ID:
+    providers <- ScoreTracker.getProvidersByScore()
+
+  on HOST_PEER_ID:
+    workers <- getWorkers()
+    worker = workers[0]
+
+    for provider <- providers:
+      if return == nil:
+        result <- callOnWorker(worker, provider, method, jsonArgs, call)
+
+        -- break loop and return if call had success otherwise go to next provider
+        if result.success:
+          return <<- result
+  <- return

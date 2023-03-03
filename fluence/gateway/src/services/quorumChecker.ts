@@ -1,6 +1,5 @@
 import { CallResult } from "../types";
 import { QuorumCheckerDef, QuorumResult } from "../../aqua-compiled/rpc";
-import { getScores, updateScores } from "./scores";
 
 const getFrequencies = (values: string[]) => {
   return values.reduce((counts, result) => {
@@ -30,9 +29,6 @@ function checkQuorum(callResults: CallResult[], minNum: number): QuorumResult {
   const isPassed = maxFrequency >= minNum;
 
   console.log("Mode: ", mode, ", repeated ", maxFrequency, "times");
-
-  updateScores(callResults, mode, isPassed);
-  console.log("Scores: ", getScores());
 
   return {
     isPassed,
