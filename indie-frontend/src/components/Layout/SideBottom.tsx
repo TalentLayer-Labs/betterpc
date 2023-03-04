@@ -1,8 +1,8 @@
 import { useBlockNumber, useFeeData, useNetwork } from 'wagmi';
 
 function SideBottom() {
-  const { data: blockNumber } = useBlockNumber({ watch: true });
-  const { data: feeData } = useFeeData({ watch: true });
+  const { data: blockNumber } = useBlockNumber({ watch: false });
+  const { data: feeData } = useFeeData({ watch: false });
   const network = useNetwork();
 
   return (

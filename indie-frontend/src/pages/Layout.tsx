@@ -6,7 +6,6 @@ import Logo from '../components/Layout/Logo';
 import NetworkSwitch from '../components/NetworkSwitch';
 import SideMenu from '../components/Layout/SideMenu';
 import UserAccount from '../components/UserAccount';
-import SideBottom from '../components/Layout/SideBottom';
 
 function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -77,7 +76,6 @@ function Layout() {
             </div>
             <div className='mt-5 flex flex-1 flex-col justify-between'>
               <SideMenu />
-              <SideBottom />
             </div>
           </div>
         </div>
