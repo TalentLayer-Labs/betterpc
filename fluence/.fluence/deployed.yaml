@@ -10,10 +10,10 @@ workers:
     defaultWorker:
       {
         installation_spells: [],
-        definition: QmcMxbxh8rHpJAYba78AYGaEw5s5sgMLV4PozbtMxzyzvj,
-        timestamp: 2023-02-28T17:05:59.636Z,
-        dealIdOriginal: "0x2ed56e62b96fed6DA7455351492435CA56B2E555",
-        dealId: 2ed56e62b96fed6da7455351492435ca56b2e555,
+        definition: QmUvoDonBFzxBDaFZ7sFg3Wn65pVsWEDTbdjZizA4xdtkZ,
+        timestamp: 2023-03-03T23:57:04.776Z,
+        dealIdOriginal: "0xf26521a6Dfd6208e4e37627a8F04B4DE4087274E",
+        dealId: f26521a6dfd6208e4e37627a8f04b4de4087274e,
         chainNetwork: testnet,
         chainNetworkId: 80001
       }
