@@ -7,8 +7,6 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { JSONRPCServer } from "json-rpc-2.0";
 import { Fluence } from "@fluencelabs/fluence";
-// import { Fluence } from "@fluencelabs/js-client.api";
-// import "@fluencelabs/js-client.node";
 import {
   optimizedEth,
   quorumEth,
