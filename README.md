@@ -1,12 +1,14 @@
-## FLUENCE x TALENTLAYER 🚀 BetteRPC - ETH Denver 2023 🚀
+# 🚀 BetteRPC
 
-## Overview / Description
+Transactions on blockchains are still centralized when broadcasted by Remote Call Procedure (RPC), which makes them susceptible to censorship, as well as problems related to reliability and integrity.
+BetteRPC aims to accelerate the future of Web3 Infrastructure decentralization by providing an open and configurable decentralized RPC gateway. BetteRPC achieves anonymity by creating a peer-to-peer network for RPCs powered by (fluence ♥)[https://fluence.dev/docs/learn/overview]
 
----
+## How it works? 
 
-BetterRPC project is built with Fluence, a decentralized serverless platform and computing marketplace powered by blockchain economics.
+BetterRPC project is built with (fluence ♥)[https://fluence.dev/docs/learn/overview], a decentralized serverless platform and computing marketplace powered by blockchain economics.
 
-Fluence peers are a decentralized node that provides computing power and storage for distributed applications.
+### Configuration
+
 There is different way to select peers during a call like Random, RoundRobin, or QuorumChecker.
 
 The goal of BetterRPC is to provide a better way to select peers for the application uses by sorting peers by
@@ -16,26 +18,45 @@ The goal of BetterRPC is to provide a better way to select peers for the applica
 - Latency
 - Cost
 
-# Installation
+### Prerequites
 
-To install and run the project, follow these steps:
+- Install Docker on your machine: https://www.docker.com/get-started.
+- Having fluence setup: 
+```bash
+npm -g i @fluencelabs/cli@latest
+```
 
-1. Install Docker on your machine, if it is not already installed. You can download Docker from the official website: https://www.docker.com/get-started.
+### Installation
 
-2. Pull the BetterRPC Docker image from Docker Hub using the following command:
+Clone the repo
 
-   `docker pull betterrpc/betterrpc`
+```bash
+git clone git@github.com:TalentLayer-Labs/betterpc.git
+```
 
-   This will download the latest version of the BetterRPC Docker image to your machine.
+Build fluence:
+```bash
+cd fluence
+fluence build
+```
 
-3. Run the BetterRPC Docker image using the following command:
+Deploy the deal and follow the instructions: 
+```bash
+fluence deal deploy
+```
 
-   `docker run -p 8080:8080 -e FLUENCE_SERVICE_ID=[YOUR_FLUENCE_SERVICE_ID] -e FLUENCE_SERVICE_KEY=[YOUR_FLUENCE_SERVICE_KEY] betterrpc/betterrpc`
+Configure the frontend demo:
+```bash
+cp -n indie-frontend/.env.example indie-frontend/.env
+```
 
-   This will start a new Docker container and bind port 8080 on your local machine to port 8080 inside the container. It will also set the FLUENCE_SERVICE_ID and FLUENCE_SERVICE_KEY environment variables, which are required to connect to your Fluence service.
+Launch frontend demo and backend gateway via docker
 
-4. Open your browser and navigate to http://localhost:8080. You should see the BetterRPC web interface.
+```bash
+docker-compose up -d
+```
 
-# Folder architecture
+Now you can access to:
+- Frontend: http://localhost:5173
+- Backend Gateway: http://localhost:8080
 
-# Code details
