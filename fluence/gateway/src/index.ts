@@ -89,16 +89,8 @@ async function methodHandler(reqRaw: any, method: string) {
       { ttl: 20000 },
     );
 
-    const scores = await getScores();
+    const scores = getScores();
     console.log("Provider scores: ", scores);
-
-    // const res = await optimizedEth(
-    //   method,
-    //   req,
-    //   scoreTrackerServiceId,
-    //   scoreTrackerPeerId,
-    // );
-    // console.log("Optimized result: " + res?.value);
 
     if (!result.didPass) {
       return {
@@ -187,6 +179,11 @@ const main = async () => {
         res.sendStatus(204);
       }
     });
+  });
+
+  app.get("/scores", async (req, res) => {
+    const scores = getScores();
+    res.json(scores);
   });
 
   app.listen(config.port);
