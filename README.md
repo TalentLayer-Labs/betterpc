@@ -60,31 +60,13 @@ npm -g i @fluencelabs/cli@latest
 ## Installation
 
 Clone the repo
-
 ```bash
 git clone git@github.com:TalentLayer-Labs/betterpc.git
 ```
 
-Build fluence:
+Launch the whole setup and follow the instructions:
 ```bash
-cd fluence
-fluence build
-```
-
-Deploy the deal and follow the instructions: 
-```bash
-fluence deal deploy
-```
-
-Configure the frontend demo:
-```bash
-cp -n indie-frontend/.env.example indie-frontend/.env
-```
-
-Launch frontend demo and backend gateway via docker
-
-```bash
-docker-compose up -d
+make install
 ```
 
 Now you can access to:
