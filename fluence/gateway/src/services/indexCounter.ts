@@ -4,7 +4,7 @@ export class IndexCounter implements IndexCounterDef {
   index = 0;
 
   getCurrentAndIncrement() {
-    console.log("Getting current index: " + this.index);
+    // console.log("Getting current index: " + this.index);
     return this.index++;
   }
 

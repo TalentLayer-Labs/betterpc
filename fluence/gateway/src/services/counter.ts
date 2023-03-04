@@ -9,7 +9,7 @@ export class Counter implements CounterDef {
     }
 
     this.counters[id]++;
-    console.log(`Counter ${id}: `, this.counters[id]);
+    // console.log(`Counter ${id}: `, this.counters[id]);
     return this.counters[id];
   }
 }

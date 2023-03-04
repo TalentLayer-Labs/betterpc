@@ -89,21 +89,20 @@ async function methodHandler(reqRaw: any, method: string) {
       { ttl: 20000 },
     );
 
-    const scores = getScores();
-    console.log("Provider scores: ", scores);
-
     if (!result.didPass) {
       return {
         error: "No consensus in result",
         results: result.results,
-        value: result.value,
       };
     }
   } else if (config.mode === "optimized") {
     const requestCount = getRequestCount();
 
+    // Check if the scores have been updated enough to start using the optimized mode
     const minimumScoreUpdates = config.minimumScoreUpdates || 3;
     if (requestCount < minimumScoreUpdates) {
+      console.log("Using quorum mode");
+
       result = await quorumEth(
         config.providers,
         quorumNumber,
@@ -120,7 +119,19 @@ async function methodHandler(reqRaw: any, method: string) {
         counterPeerId,
         { ttl: 20000 },
       );
+
+      const scores = getScores();
+      console.log("Provider scores: ", scores);
+
+      if (!result.didPass) {
+        return {
+          error: "No consensus in result",
+          results: result.results,
+        };
+      }
     } else {
+      console.log("Using optimized mode");
+
       result = await optimizedEth(
         method,
         req,
@@ -181,6 +192,7 @@ const main = async () => {
     });
   });
 
+  // register endpoint for getting scores
   app.get("/scores", async (req, res) => {
     const scores = getScores();
     res.json(scores);

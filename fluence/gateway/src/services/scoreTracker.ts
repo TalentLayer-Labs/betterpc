@@ -13,12 +13,15 @@ const scores: Record<string, number> = {};
 
 let requestCount = 0;
 
-export const getRequestCount = () => {
-  return requestCount;
-};
-
 export const getScores = () => {
   return scores;
+};
+
+/**
+ * @returns number of requests which updated the scores
+ */
+export const getRequestCount = () => {
+  return requestCount;
 };
 
 export class ScoreTracker implements ScoreTrackerDef {
