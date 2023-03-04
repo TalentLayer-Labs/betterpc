@@ -4,7 +4,7 @@
     "https://polygon-mumbai.g.alchemy.com/v2/fjt7CxM2YtlMSj0FmKC14YqUsiGq32Ln",
     "https://chaotic-cool-uranium.matic-testnet.discover.quiknode.pro/4a7f0274e744377a80e8a93c66f329149b895013/"
   ],
-  "mode": "quorum",
+  "mode": "optimized",
   "relay": "/dns4/stage.fluence.dev/tcp/19001/wss/p2p/12D3KooWHCJbJKGDfCgHSoCuK9q4STyRnVveqLoXAPBbXHTZx9Cv",
   "port": 3000,
   "counterServiceId": null,
@@ -18,5 +18,6 @@
   "latencyPoints": 5,
   "quorumPoints": 2,
   "failedCallPoints": -1,
-  "quorumNumber": 2
+  "quorumNumber": 2,
+  "minimumScoreUpdates": 3
 }

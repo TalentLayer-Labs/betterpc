@@ -11,6 +11,12 @@ const latencyPoints = config.latencyPoints || 1;
 // Provider url to score
 const scores: Record<string, number> = {};
 
+let requestCount = 0;
+
+export const getRequestCount = () => {
+  return requestCount;
+};
+
 export const getScores = () => {
   return scores;
 };
@@ -67,5 +73,7 @@ export class ScoreTracker implements ScoreTrackerDef {
     if (fastestProvider) {
       scores[fastestProvider] += latencyPoints;
     }
+
+    requestCount++;
   }
 }

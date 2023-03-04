@@ -4,6 +4,7 @@
 
 import express from "express";
 import bodyParser from "body-parser";
+import cors from "cors";
 import { JSONRPCServer } from "json-rpc-2.0";
 import { Fluence } from "@fluencelabs/fluence";
 // import { Fluence } from "@fluencelabs/js-client.api";
@@ -25,7 +26,11 @@ import { methods } from "./methods";
 import { Logger } from "./services/logger";
 import { Counter } from "./services/counter";
 import { QuorumChecker } from "./services/quorumChecker";
-import { getScores, ScoreTracker } from "./services/scoreTracker";
+import {
+  getRequestCount,
+  getScores,
+  ScoreTracker,
+} from "./services/scoreTracker";
 import { IndexCounter } from "./services/indexCounter";
 import { NumOp } from "./services/numOp";
 
@@ -103,12 +108,34 @@ async function methodHandler(reqRaw: any, method: string) {
       };
     }
   } else if (config.mode === "optimized") {
-    result = await optimizedEth(
-      method,
-      req,
-      scoreTrackerServiceId,
-      scoreTrackerPeerId,
-    );
+    const requestCount = getRequestCount();
+
+    const minimumScoreUpdates = config.minimumScoreUpdates || 3;
+    if (requestCount < minimumScoreUpdates) {
+      result = await quorumEth(
+        config.providers,
+        quorumNumber,
+        10000,
+        method,
+        req,
+        quorumServiceId,
+        quorumPeerId,
+        scoreTrackerServiceId,
+        scoreTrackerPeerId,
+        indexCounterServiceId,
+        indexCounterPeerId,
+        counterServiceId,
+        counterPeerId,
+        { ttl: 20000 },
+      );
+    } else {
+      result = await optimizedEth(
+        method,
+        req,
+        scoreTrackerServiceId,
+        scoreTrackerPeerId,
+      );
+    }
   }
 
   return JSON.parse(result.value);
@@ -148,6 +175,7 @@ const main = async () => {
 
   const app = express();
   app.use(bodyParser.json());
+  app.use(cors());
 
   // register JSON-RPC handler
   app.post(route, (req, res) => {

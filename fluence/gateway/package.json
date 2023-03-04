@@ -4,10 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "run:example": "ts-node src/index.ts \"config.json\"",
-    "run": "fluence aqua -i aqua/ -o aqua-compiled/ --old-fluence-js && ts-node src/index.ts",
-    "compile": "fluence aqua -i aqua/ -o aqua-compiled/ --old-fluence-js",
-    "req": "node web3run.js"
+    "run": "ts-node src/index.ts \"config.json\"",
+    "compile": "fluence aqua -i aqua/ -o aqua-compiled/ --old-fluence-js"
   },
   "bin": {
     "aqua-eth-gateway": "src/index.js"
@@ -21,10 +19,12 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@fluencelabs/fluence": "^0.28.0",
+    "cors": "^2.8.5",
     "json-rpc-2.0": "1.4.2",
     "web3": "1.8.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/node": "^18.14.2",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
