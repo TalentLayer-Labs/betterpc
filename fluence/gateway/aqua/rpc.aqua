@@ -182,7 +182,9 @@ func optimized(method: string, jsonArgs: []string, scoreTrackerServiceId: string
 
   on HOST_PEER_ID:
     workers <- getWorkers()
-    worker = workers[0]
+    timeW <- NumOp.identity(Peer.timestamp_sec())
+    workerNumber = timeW % workers.length
+    worker = workers[workerNumber]
 
     for provider <- providers:
       if return == nil:
